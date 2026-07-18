@@ -150,8 +150,31 @@ function initReveal(){
     io.observe(el);
   });
 }
+function startAutoScroll(){
+  var SPEED = 45;
+  var stopped = false;
+  var last = null;
+  var pos = window.scrollY;
+  var stopEvents = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+  function stop(){
+    stopped = true;
+    stopEvents.forEach(function(e){ document.removeEventListener(e, stop); });
+  }
+  stopEvents.forEach(function(e){ document.addEventListener(e, stop, { passive: true }); });
+  function step(now){
+    if (stopped) return;
+    if (last !== null){
+      pos += (now - last) / 1000 * SPEED;
+      window.scrollTo(0, pos);
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2){ stop(); return; }
+    }
+    last = now;
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 var openBtn = document.getElementById('open-invitation');
-if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 900); });
+if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 900); setTimeout(startAutoScroll, 2600); });
 else initReveal();
 
 var audio = document.getElementById('bg-music');
