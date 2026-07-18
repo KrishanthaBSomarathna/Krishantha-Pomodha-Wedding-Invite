@@ -22,7 +22,7 @@ tick();
 .wa-fade{animation:waFadeUp .9s ease both}
 @keyframes waLine{from{width:0}to{width:60px}}
 @keyframes waHeart{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-.wa-reveal{opacity:0;translate:0 30px;transition:opacity .9s ease,translate .9s ease}
+.wa-reveal{opacity:0;translate:0 30px;transition:opacity 1.3s ease,translate 1.3s ease}
 .wa-reveal.wa-in{opacity:1;translate:0 0}
 @keyframes waPetal{0%{transform:translate(0,-5vh) rotate(0deg)}25%{transform:translate(18px,25vh) rotate(95deg)}50%{transform:translate(-15px,52vh) rotate(190deg)}75%{transform:translate(15px,80vh) rotate(280deg)}92%{opacity:.75}100%{transform:translate(0,108vh) rotate(360deg);opacity:0}}
 .wa-petal{opacity:.75}
@@ -34,7 +34,41 @@ tick();
 var audio = document.getElementById('bg-music');
 var btn = document.querySelector('button[aria-label="Play music"]');
 if (!audio || !btn) return;
-audio.volume = 0.09;
+var TARGET_VOL = 0.09;
+audio.volume = TARGET_VOL;
+function fadeInPlay(dur){
+  audio.volume = 0;
+  var p = audio.play();
+  var start = null;
+  function step(now){
+    if (start === null) start = now;
+    var t = Math.min((now - start) / dur, 1);
+    audio.volume = TARGET_VOL * t;
+    if (t < 1 && !audio.paused) requestAnimationFrame(step);
+  }
+  if (p && p.then) p.then(function(){ requestAnimationFrame(step); }).catch(function(){ audio.volume = TARGET_VOL; });
+  else requestAnimationFrame(step);
+}
+function burstFlowers(cx, cy){
+  var colors = ['#e9dfc8','#dfe5c8','#f0d8d2','#e7cfc7','#b5bd8a','#8a9457','#d9c9a3','#ffffff'];
+  for (var i = 0; i < 32; i++){
+    var el = document.createElement('div');
+    var size = 8 + Math.random() * 12;
+    el.style.cssText = 'position:fixed;left:' + (cx - size/2) + 'px;top:' + (cy - size/2) + 'px;width:' + size + 'px;height:' + size + 'px;background:' + colors[i % colors.length] + ';border-radius:150% 0 150% 0;pointer-events:none;z-index:2147483647;';
+    document.body.appendChild(el);
+    var ang = Math.random() * Math.PI * 2;
+    var dist = 130 + Math.random() * Math.max(window.innerWidth, window.innerHeight) * 0.6;
+    var dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist;
+    var dur = 1300 + Math.random() * 900;
+    if (el.animate){
+      el.animate([
+        { transform: 'translate(0,0) scale(.5) rotate(0deg)', opacity: 1 },
+        { transform: 'translate(' + dx.toFixed(0) + 'px,' + dy.toFixed(0) + 'px) scale(1) rotate(' + (Math.random() * 720 - 360).toFixed(0) + 'deg)', opacity: 0 }
+      ], { duration: dur, easing: 'cubic-bezier(.15,.6,.35,1)', fill: 'forwards' });
+    }
+    setTimeout((function(e){ return function(){ e.remove(); }; })(el), dur + 100);
+  }
+}
 var icon = btn.querySelector('svg path');
 var NOTE = 'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z';
 var PAUSE = 'M6 19h4V5H6v14zm8-14v14h4V5h-4z';
@@ -44,7 +78,7 @@ function render(){
   btn.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
 }
 btn.addEventListener('click', function(){
-  if (audio.paused) { audio.play(); } else { audio.pause(); }
+  if (audio.paused) { fadeInPlay(800); } else { audio.pause(); }
 });
 audio.addEventListener('play', render);
 audio.addEventListener('pause', render);
@@ -52,7 +86,7 @@ function autoStart(){
   document.removeEventListener('pointerdown', autoStart);
   document.removeEventListener('keydown', autoStart);
   document.removeEventListener('touchstart', autoStart);
-  if (audio.paused) audio.play().catch(function(){});
+  if (audio.paused) fadeInPlay(3000);
 }
 document.addEventListener('pointerdown', autoStart);
 document.addEventListener('keydown', autoStart);
@@ -71,11 +105,18 @@ overlay.innerHTML =
 overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#faf8f2;display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease;overflow:hidden;';
 document.body.appendChild(overlay);
 document.documentElement.style.overflow = 'hidden';
-document.getElementById('open-invitation').addEventListener('click', function(){
-  audio.play().catch(function(){});
-  document.documentElement.style.overflow = '';
-  overlay.style.opacity = '0';
-  setTimeout(function(){ overlay.remove(); }, 850);
+document.getElementById('open-invitation').addEventListener('click', function(ev){
+  var r = ev.currentTarget.getBoundingClientRect();
+  burstFlowers(r.left + r.width / 2, r.top + r.height / 2);
+  if (audio.paused) fadeInPlay(3500);
+  var inner = overlay.firstChild;
+  if (inner) { inner.style.transition = 'opacity .6s ease'; inner.style.opacity = '0'; }
+  setTimeout(function(){
+    document.documentElement.style.overflow = '';
+    overlay.style.transition = 'opacity 1.6s ease';
+    overlay.style.opacity = '0';
+    setTimeout(function(){ overlay.remove(); }, 1650);
+  }, 700);
 });
 })();</script><script>(function(){
 if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -110,7 +151,7 @@ function initReveal(){
   });
 }
 var openBtn = document.getElementById('open-invitation');
-if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 250); });
+if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 900); });
 else initReveal();
 
 var audio = document.getElementById('bg-music');
