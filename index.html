@@ -155,7 +155,7 @@ function startAutoScroll(){
   var stopped = false;
   var last = null;
   var pos = window.scrollY;
-  var stopEvents = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+  var stopEvents = ['wheel', 'touchmove', 'keydown'];
   function stop(){
     stopped = true;
     stopEvents.forEach(function(e){ document.removeEventListener(e, stop); });
@@ -164,6 +164,7 @@ function startAutoScroll(){
   function step(now){
     if (stopped) return;
     if (last !== null){
+      if (Math.abs(window.scrollY - pos) > 60) pos = window.scrollY;
       pos += (now - last) / 1000 * SPEED;
       window.scrollTo(0, pos);
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2){ stop(); return; }
@@ -174,7 +175,7 @@ function startAutoScroll(){
   requestAnimationFrame(step);
 }
 var openBtn = document.getElementById('open-invitation');
-if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 900); setTimeout(startAutoScroll, 2600); });
+if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 900); setTimeout(startAutoScroll, 1600); });
 else initReveal();
 
 var audio = document.getElementById('bg-music');
