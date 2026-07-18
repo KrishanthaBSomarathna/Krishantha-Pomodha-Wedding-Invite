@@ -17,7 +17,20 @@ function tick(){
   setTimeout(tick, 1000);
 }
 tick();
-})();</script><audio id="bg-music" src="./assets/O%20Re%20Piya%20-%20Flute%20_%20Instrumental.mp3" loop preload="auto"></audio><script>(function(){
+})();</script><style id="invite-anim">
+@keyframes waFadeUp{from{opacity:0;translate:0 24px}to{opacity:1;translate:0 0}}
+.wa-fade{animation:waFadeUp .9s ease both}
+@keyframes waLine{from{width:0}to{width:60px}}
+@keyframes waHeart{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.wa-reveal{opacity:0;translate:0 30px;transition:opacity .9s ease,translate .9s ease}
+.wa-reveal.wa-in{opacity:1;translate:0 0}
+@keyframes waPetal{0%{transform:translate(0,-5vh) rotate(0deg)}25%{transform:translate(18px,25vh) rotate(95deg)}50%{transform:translate(-15px,52vh) rotate(190deg)}75%{transform:translate(15px,80vh) rotate(280deg)}92%{opacity:.75}100%{transform:translate(0,108vh) rotate(360deg);opacity:0}}
+.wa-petal{opacity:.75}
+@keyframes waGlow{0%{box-shadow:0 0 0 0 rgba(64,74,29,.4)}70%{box-shadow:0 0 0 14px rgba(64,74,29,0)}100%{box-shadow:0 0 0 0 rgba(64,74,29,0)}}
+.wa-glow{animation:waGlow 2.2s ease-out infinite}
+@keyframes waSway{from{rotate:-1.6deg}to{rotate:1.6deg}}
+@media (prefers-reduced-motion: reduce){.wa-fade,.wa-petal,.wa-glow{animation:none!important}.wa-reveal{opacity:1;translate:none;transition:none}}
+</style><audio id="bg-music" src="./assets/O%20Re%20Piya%20-%20Flute%20_%20Instrumental.mp3" loop preload="auto"></audio><script>(function(){
 var audio = document.getElementById('bg-music');
 var btn = document.querySelector('button[aria-label="Play music"]');
 if (!audio || !btn) return;
@@ -48,14 +61,14 @@ document.addEventListener('touchstart', autoStart);
 var overlay = document.createElement('div');
 overlay.id = 'welcome-overlay';
 overlay.innerHTML =
-  '<div style="text-align:center;padding:24px;max-width:90vw;">' +
-    '<div style="font-family:Montserrat,Arial,sans-serif;font-size:12px;letter-spacing:0.35em;color:#6b7245;text-transform:uppercase;margin-bottom:18px;">The Wedding Of</div>' +
-    '<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:clamp(34px,8vw,56px);color:#404a1d;line-height:1.2;">Pomodha <span style="font-style:italic;">&amp;</span> Krishantha</div>' +
-    '<div style="font-family:Montserrat,Arial,sans-serif;font-size:13px;letter-spacing:0.15em;color:#6b7245;margin-top:18px;">Thursday, August 20, 2026</div>' +
-    '<div style="width:60px;height:1px;background:#c3c9a5;margin:26px auto;"></div>' +
-    '<button id="open-invitation" style="font-family:Montserrat,Arial,sans-serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#fff;background:linear-gradient(to right bottom, rgba(64,74,29,0.85), rgb(64,74,29));border:none;border-radius:999px;padding:16px 38px;cursor:pointer;box-shadow:0 8px 24px rgba(64,74,29,0.35);">Open Invitation</button>' +
+  '<div style="text-align:center;padding:24px;max-width:90vw;position:relative;z-index:2;">' +
+    '<div class="wa-fade" style="animation-delay:.15s;font-family:Montserrat,Arial,sans-serif;font-size:12px;letter-spacing:0.35em;color:#6b7245;text-transform:uppercase;margin-bottom:18px;">The Wedding Of</div>' +
+    '<div class="wa-fade" style="animation-delay:.35s;font-family:\'Playfair Display\',Georgia,serif;font-size:clamp(34px,8vw,56px);color:#404a1d;line-height:1.2;">Pomodha <span style="font-style:italic;">&amp;</span> Krishantha</div>' +
+    '<div class="wa-fade" style="animation-delay:.55s;font-family:Montserrat,Arial,sans-serif;font-size:13px;letter-spacing:0.15em;color:#6b7245;margin-top:18px;">Thursday, August 20, 2026</div>' +
+    '<div style="width:60px;height:1px;background:#c3c9a5;margin:26px auto;animation:waLine .9s ease .75s both;"></div>' +
+    '<button id="open-invitation" style="font-family:Montserrat,Arial,sans-serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#fff;background:linear-gradient(to right bottom, rgba(64,74,29,0.85), rgb(64,74,29));border:none;border-radius:999px;padding:16px 38px;cursor:pointer;box-shadow:0 8px 24px rgba(64,74,29,0.35);animation:waFadeUp .9s ease .95s both, waHeart 2.4s ease-in-out 2.4s infinite;">Open Invitation</button>' +
   '</div>';
-overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#faf8f2;display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease;';
+overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#faf8f2;display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease;overflow:hidden;';
 document.body.appendChild(overlay);
 document.documentElement.style.overflow = 'hidden';
 document.getElementById('open-invitation').addEventListener('click', function(){
@@ -63,5 +76,52 @@ document.getElementById('open-invitation').addEventListener('click', function(){
   document.documentElement.style.overflow = '';
   overlay.style.opacity = '0';
   setTimeout(function(){ overlay.remove(); }, 850);
+});
+})();</script><script>(function(){
+if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+var PETAL_COLORS = ['#f4efe3','#e9edda','#f7e9e6','#eef0e0'];
+function spawnPetals(parent, count, absolute){
+  for (var i = 0; i < count; i++){
+    var p = document.createElement('div');
+    var size = 10 + Math.random() * 8;
+    var dur = 9 + Math.random() * 8;
+    p.className = 'wa-petal';
+    p.style.cssText = 'position:' + (absolute ? 'absolute' : 'fixed') + ';top:-30px;left:' + (Math.random() * 100).toFixed(1) + '%;width:' + size.toFixed(0) + 'px;height:' + size.toFixed(0) + 'px;background:' + PETAL_COLORS[i % PETAL_COLORS.length] + ';border-radius:150% 0 150% 0;pointer-events:none;z-index:' + (absolute ? '1' : '35') + ';animation:waPetal ' + dur.toFixed(1) + 's linear ' + (-Math.random() * dur).toFixed(1) + 's infinite;';
+    parent.appendChild(p);
+  }
+}
+spawnPetals(document.body, 12, false);
+var ov = document.getElementById('welcome-overlay');
+if (ov) spawnPetals(ov, 8, true);
+
+function initReveal(){
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting){ e.target.classList.add('wa-in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  var targets = document.querySelectorAll('main section > *, main header > *');
+  targets.forEach(function(el, i){
+    el.classList.add('wa-reveal');
+    el.style.transitionDelay = ((i % 3) * 0.12).toFixed(2) + 's';
+    io.observe(el);
+  });
+}
+var openBtn = document.getElementById('open-invitation');
+if (openBtn) openBtn.addEventListener('click', function(){ setTimeout(initReveal, 250); });
+else initReveal();
+
+var audio = document.getElementById('bg-music');
+var musicBtn = document.querySelector('button[aria-label="Play music"], button[aria-label="Pause music"]');
+if (audio && musicBtn){
+  audio.addEventListener('play', function(){ musicBtn.classList.add('wa-glow'); });
+  audio.addEventListener('pause', function(){ musicBtn.classList.remove('wa-glow'); });
+}
+
+document.querySelectorAll('img[src*="hoa.webp"]').forEach(function(img){
+  if (img.src.indexOf('khung') !== -1) return;
+  img.style.animation = 'waSway ' + (7 + Math.random() * 4).toFixed(1) + 's ease-in-out infinite alternate';
 });
 })();</script></body></html>
