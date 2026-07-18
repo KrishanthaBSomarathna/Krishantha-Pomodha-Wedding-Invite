@@ -41,9 +41,27 @@ function autoStart(){
   document.removeEventListener('touchstart', autoStart);
   if (audio.paused) audio.play().catch(function(){});
 }
-audio.play().catch(function(){
-  document.addEventListener('pointerdown', autoStart);
-  document.addEventListener('keydown', autoStart);
-  document.addEventListener('touchstart', autoStart);
+document.addEventListener('pointerdown', autoStart);
+document.addEventListener('keydown', autoStart);
+document.addEventListener('touchstart', autoStart);
+
+var overlay = document.createElement('div');
+overlay.id = 'welcome-overlay';
+overlay.innerHTML =
+  '<div style="text-align:center;padding:24px;max-width:90vw;">' +
+    '<div style="font-family:Montserrat,Arial,sans-serif;font-size:12px;letter-spacing:0.35em;color:#6b7245;text-transform:uppercase;margin-bottom:18px;">The Wedding Of</div>' +
+    '<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:clamp(34px,8vw,56px);color:#404a1d;line-height:1.2;">Pomodha <span style="font-style:italic;">&amp;</span> Krishantha</div>' +
+    '<div style="font-family:Montserrat,Arial,sans-serif;font-size:13px;letter-spacing:0.15em;color:#6b7245;margin-top:18px;">Thursday, August 20, 2026</div>' +
+    '<div style="width:60px;height:1px;background:#c3c9a5;margin:26px auto;"></div>' +
+    '<button id="open-invitation" style="font-family:Montserrat,Arial,sans-serif;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:#fff;background:linear-gradient(to right bottom, rgba(64,74,29,0.85), rgb(64,74,29));border:none;border-radius:999px;padding:16px 38px;cursor:pointer;box-shadow:0 8px 24px rgba(64,74,29,0.35);">Open Invitation</button>' +
+  '</div>';
+overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#faf8f2;display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease;';
+document.body.appendChild(overlay);
+document.documentElement.style.overflow = 'hidden';
+document.getElementById('open-invitation').addEventListener('click', function(){
+  audio.play().catch(function(){});
+  document.documentElement.style.overflow = '';
+  overlay.style.opacity = '0';
+  setTimeout(function(){ overlay.remove(); }, 850);
 });
 })();</script></body></html>
